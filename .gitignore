@@ -1,0 +1,26 @@
+# ── Environment ───────────────────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+
+# ── Backend ───────────────────────────────────────────────────────────────────
+backend/tmp/
+backend/apex-api
+backend/*.exe
+backend/coverage.out
+backend/*.test
+
+# ── Frontend ──────────────────────────────────────────────────────────────────
+frontend/node_modules/
+frontend/dist/
+frontend/coverage/
+frontend/*.log
+
+# ── IDE / OS ──────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# ── Claude Code internal ──────────────────────────────────────────────────────
+.claude/

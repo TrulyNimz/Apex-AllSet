@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* ── Dark theme (default) ───────────────────────────────────────────── */
+  :root {
+    --color-void:    #050608;
+    --color-deep:    #0a0c10;
+    --color-surface: #0f1117;
+    --color-panel:   #141820;
+    --color-border:  #1e2330;
+    --color-muted:   #6b7280;
+    --color-text:    #ffffff;
+    --color-gold:    #c9a84c;
+    --color-teal:    #00d4aa;
+    --color-danger:  #ff4757;
+    --color-warning: #ffa502;
+  }
+
+  /* ── Light theme ────────────────────────────────────────────────────── */
+  html.light {
+    --color-void:    #f0f2f5;
+    --color-deep:    #e4e7ed;
+    --color-surface: #f8f9fb;
+    --color-panel:   #ffffff;
+    --color-border:  #d1d5db;
+    --color-muted:   #6b7280;
+    --color-text:    #111827;
+    --color-gold:    #b5922e;
+    --color-teal:    #009e80;
+    --color-danger:  #e03048;
+    --color-warning: #e0920f;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    background-color: var(--color-void);
+    color: var(--color-text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar        { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track  { background: var(--color-deep); }
+  ::-webkit-scrollbar-thumb  { background: var(--color-border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #2a3040; }
+
+  /* Selection */
+  ::selection {
+    background-color: rgb(201 168 76 / 0.3);
+    color: var(--color-text);
+  }
+}
+
+@layer utilities {
+  .font-display { font-family: 'Bebas Neue', sans-serif; }
+  .font-serif   { font-family: 'Instrument Serif', serif; }
+
+  /* Price flash helpers — applied programmatically via useTick */
+  .flash-up   { animation: tick-up   0.5s ease-out; }
+  .flash-down { animation: tick-down 0.5s ease-out; }
+}
