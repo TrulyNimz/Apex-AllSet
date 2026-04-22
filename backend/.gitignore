@@ -1,0 +1,20 @@
+# Binary
+tmp/
+apex-api
+*.exe
+
+# Environment
+.env
+.env.local
+
+# Test artifacts
+coverage.out
+*.test
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

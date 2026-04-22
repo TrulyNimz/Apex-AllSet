@@ -1,0 +1,25 @@
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/coverage/
+frontend/*.log
+frontend/tsconfig.tsbuildinfo
+frontend/tsconfig.node.tsbuildinfo
+
+# Backend
+backend/tmp/
+backend/apex-api
+backend/*.exe
+backend/coverage.out
+backend/*.test
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
