@@ -10,6 +10,10 @@ frontend/coverage/
 frontend/*.log
 frontend/tsconfig.tsbuildinfo
 frontend/tsconfig.node.tsbuildinfo
+frontend/test-results/
+frontend/playwright-report/
+frontend/blob-report/
+frontend/.playwright/
 
 # Backend
 backend/tmp/

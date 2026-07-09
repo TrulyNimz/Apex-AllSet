@@ -73,24 +73,24 @@ func New(cfg *config.Config, db *sqlx.DB, rdb *redis.Client, log *logger.Logger)
 
 	// ── API v1 ─────────────────────────────────────────────────────────────────
 	v1 := app.Group("/api/v1")
-	v1.Use(middleware.RateLimit())
+	v1.Use(middleware.RateLimit(cfg.App.Env))
 
 	// Auth — public
 	authPublic := v1.Group("/auth")
-	authPublic.Use(middleware.AuthRateLimit())
+	authPublic.Use(middleware.AuthRateLimit(cfg.App.Env))
 	authPublic.Post("/register", authHandler.Register)
 	authPublic.Post("/login",    authHandler.Login)
 	authPublic.Post("/refresh",  authHandler.RefreshToken)
 
 	// Auth — protected
-	authPrivate := v1.Group("/auth", middleware.JWTProtected(cfg.JWT.AccessSecret), middleware.UserRateLimit())
+	authPrivate := v1.Group("/auth", middleware.JWTProtected(cfg.JWT.AccessSecret), middleware.UserRateLimit(cfg.App.Env))
 	authPrivate.Post("/logout",      authHandler.Logout)
 	authPrivate.Post("/2fa/setup",   authHandler.Setup2FA)
 	authPrivate.Post("/2fa/verify",  authHandler.Verify2FA)
 	authPrivate.Post("/2fa/disable", authHandler.Disable2FA)
 
 	// Users — protected
-	users := v1.Group("/users", middleware.JWTProtected(cfg.JWT.AccessSecret), middleware.UserRateLimit())
+	users := v1.Group("/users", middleware.JWTProtected(cfg.JWT.AccessSecret), middleware.UserRateLimit(cfg.App.Env))
 	users.Get("/me",          userHandler.GetMe)
 	users.Patch("/me",        userHandler.UpdateMe)
 	users.Post("/kyc/submit", userHandler.SubmitKYC)
@@ -100,7 +100,7 @@ func New(cfg *config.Config, db *sqlx.DB, rdb *redis.Client, log *logger.Logger)
 	v1.Get("/market/:symbol/candles",   mktHandler.GetCandles)
 
 	// Orders, Positions, Notifications — protected
-	trading := v1.Group("/", middleware.JWTProtected(cfg.JWT.AccessSecret), middleware.UserRateLimit())
+	trading := v1.Group("/", middleware.JWTProtected(cfg.JWT.AccessSecret), middleware.UserRateLimit(cfg.App.Env))
 	trading.Post("/orders",                    ordHandler.PlaceOrder)
 	trading.Get("/orders",                     ordHandler.ListOrders)
 	trading.Delete("/orders/:id",              ordHandler.CancelOrder)

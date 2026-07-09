@@ -8,7 +8,7 @@ test.describe('Settings', () => {
 
   test('profile tab shows user data and allows name update', async ({ page }) => {
     await page.goto('/settings')
-    await expect(page.getByText('Settings')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible()
 
     // Profile tab is default
     await expect(page.getByLabel('First Name')).toHaveValue('E2E')

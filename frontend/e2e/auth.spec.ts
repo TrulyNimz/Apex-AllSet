@@ -10,7 +10,7 @@ test.describe('Auth', () => {
   test('register → auto-login → dashboard', async ({ page }) => {
     const email = await registerAndLogin(page)
     await expect(page).toHaveURL('/')
-    await expect(page.getByText('Dashboard')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible()
     await expect(page.getByText(email)).toBeVisible()
   })
 
@@ -25,7 +25,7 @@ test.describe('Auth', () => {
     // Log back in
     await login(page, email)
     await expect(page).toHaveURL('/')
-    await expect(page.getByText('Dashboard')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible()
   })
 
   test('invalid credentials shows error', async ({ page }) => {

@@ -41,19 +41,20 @@ type TokenPair struct {
 }
 
 type UserRow struct {
-	ID           string         `db:"id"`
-	FirstName    string         `db:"first_name"`
-	LastName     string         `db:"last_name"`
-	Email        string         `db:"email"`
-	PasswordHash string         `db:"password_hash"`
-	Role         string         `db:"role"`
-	AvatarURL    sql.NullString `db:"avatar_url"`
-	TOTPSecret   sql.NullString `db:"totp_secret"`
-	TOTPEnabled  bool           `db:"totp_enabled"`
-	KYCStatus    string         `db:"kyc_status"`
-	DeletedAt    sql.NullTime   `db:"deleted_at"`
-	CreatedAt    time.Time      `db:"created_at"`
-	UpdatedAt    time.Time      `db:"updated_at"`
+	ID               string         `db:"id"`
+	FirstName        string         `db:"first_name"`
+	LastName         string         `db:"last_name"`
+	Email            string         `db:"email"`
+	PasswordHash     string         `db:"password_hash"`
+	Role             string         `db:"role"`
+	AvatarURL        sql.NullString `db:"avatar_url"`
+	TOTPSecret       sql.NullString `db:"totp_secret"`
+	TOTPEnabled      bool           `db:"totp_enabled"`
+	KYCStatus        string         `db:"kyc_status"`
+	LeaderboardOptIn bool           `db:"leaderboard_opt_in"`
+	DeletedAt        sql.NullTime   `db:"deleted_at"`
+	CreatedAt        time.Time      `db:"created_at"`
+	UpdatedAt        time.Time      `db:"updated_at"`
 }
 
 // ── Repository ────────────────────────────────────────────────────────────────
@@ -432,7 +433,9 @@ func (h *Handler) Setup2FA(c *fiber.Ctx) error {
 }
 
 func (h *Handler) Verify2FA(c *fiber.Ctx) error {
-	var body struct{ Code string `json:"code"` }
+	var body struct {
+		Code string `json:"code"`
+	}
 	if err := c.BodyParser(&body); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "code required")
 	}
@@ -444,7 +447,9 @@ func (h *Handler) Verify2FA(c *fiber.Ctx) error {
 }
 
 func (h *Handler) Disable2FA(c *fiber.Ctx) error {
-	var body struct{ Code string `json:"code"` }
+	var body struct {
+		Code string `json:"code"`
+	}
 	if err := c.BodyParser(&body); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "code required")
 	}

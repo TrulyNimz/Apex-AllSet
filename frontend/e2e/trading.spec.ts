@@ -11,7 +11,7 @@ test.describe('Trading', () => {
     // Watchlist table should have EURUSD row
     await expect(page.getByText('EURUSD')).toBeVisible()
     // Wait for a price to appear (up to 5s for WS tick)
-    await expect(page.locator('table').getByText(/1\.\d{5}/)).toBeVisible({ timeout: 5_000 })
+    await expect(page.locator('table').getByText(/1\.\d{5}/).first()).toBeVisible({ timeout: 5_000 })
   })
 
   test('clicking a watchlist row navigates to trading page', async ({ page }) => {
@@ -33,7 +33,7 @@ test.describe('Trading', () => {
     await page.goto('/trading/EURUSD')
 
     // Wait for price to load (WS tick)
-    await expect(page.getByText(/1\.\d{5}/)).toBeVisible({ timeout: 5_000 })
+    await expect(page.getByText(/1\.\d{5}/).first()).toBeVisible({ timeout: 5_000 })
 
     // Fill quantity and submit buy
     await page.getByPlaceholder(/quantity/i).fill('1000')
@@ -49,7 +49,7 @@ test.describe('Trading', () => {
   test('portfolio page shows summary and positions', async ({ page }) => {
     // Place an order first
     await page.goto('/trading/EURUSD')
-    await expect(page.getByText(/1\.\d{5}/)).toBeVisible({ timeout: 5_000 })
+    await expect(page.getByText(/1\.\d{5}/).first()).toBeVisible({ timeout: 5_000 })
     await page.getByPlaceholder(/quantity/i).fill('1000')
     await page.getByRole('button', { name: /buy/i }).click()
     await expect(page.getByText(/order placed/i)).toBeVisible({ timeout: 5_000 })
@@ -65,13 +65,13 @@ test.describe('Trading', () => {
   test('journal page lists filled orders', async ({ page }) => {
     // Place an order first
     await page.goto('/trading/EURUSD')
-    await expect(page.getByText(/1\.\d{5}/)).toBeVisible({ timeout: 5_000 })
+    await expect(page.getByText(/1\.\d{5}/).first()).toBeVisible({ timeout: 5_000 })
     await page.getByPlaceholder(/quantity/i).fill('1000')
     await page.getByRole('button', { name: /buy/i }).click()
     await expect(page.getByText(/order placed/i)).toBeVisible({ timeout: 5_000 })
 
     await page.goto('/journal')
-    await expect(page.getByText('Journal')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Journal' })).toBeVisible()
     await expect(page.getByText('EURUSD')).toBeVisible()
     await expect(page.getByText('BUY')).toBeVisible()
   })
