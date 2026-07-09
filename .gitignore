@@ -14,6 +14,7 @@ frontend/test-results/
 frontend/playwright-report/
 frontend/blob-report/
 frontend/.playwright/
+frontend/screenshots/
 
 # Backend
 backend/tmp/
