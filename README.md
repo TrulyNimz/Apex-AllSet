@@ -44,4 +44,9 @@ npm run dev                   # dev server on :5173
 | Backend   | Go 1.23, Fiber v2, PostgreSQL 16, Redis 7        |
 | Auth      | JWT (access + refresh tokens) + TOTP 2FA        |
 | Realtime  | WebSocket (price ticks, order updates)          |
+| Market data | Real-world prices from free sources (Coinbase, ECB/Frankfurter), then simulated |
 | Deploy    | Docker + Docker Compose, GitHub Actions → VPS   |
+
+> Prices are anchored to live real-world figures at startup (see
+> [backend/README.md](backend/README.md#market-data--real-world-prices)) with a
+> static fallback, so the platform works offline too.

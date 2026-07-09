@@ -106,6 +106,15 @@ make migrate-up
 | POST   | /api/v1/auth/2fa/disable| ✓   | Disable 2FA              |
 | GET    | /api/v1/users/me       | ✓    | Get current user profile |
 | PATCH  | /api/v1/users/me       | ✓    | Update profile           |
+| GET    | /api/v1/instruments    | ✗    | List tradable instruments |
+| GET    | /api/v1/market/:symbol/candles | ✗ | OHLCV candles (timeframe, limit) |
+| GET    | /api/v1/ws/prices?token= | ✓  | WebSocket live price ticks |
+| POST   | /api/v1/orders         | ✓    | Place market/limit/stop order |
+| GET    | /api/v1/orders         | ✓    | List orders              |
+| DELETE | /api/v1/orders/:id     | ✓    | Cancel an open order     |
+| GET    | /api/v1/positions      | ✓    | Open positions + live P&L |
+| GET    | /api/v1/portfolio      | ✓    | Account summary (balance, equity) |
+| GET    | /api/v1/portfolio/equity-curve | ✓ | Equity snapshots over time |
 | GET    | /health                | ✗    | Health check             |
 | GET    | /ready                 | ✗    | Readiness check          |
 
@@ -146,6 +155,34 @@ See `.env.example` for the full list with documentation.
 **Required for startup:**
 - `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`
 - `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`
+
+**Notable optional:**
+- `MARKET_SEED_SOURCE` — `live` (default) anchors prices to real-world figures
+  from free sources; `static` uses built-in seeds only. See *Market Data* below.
+- Rate limits are relaxed automatically when `APP_ENV` is not `production`.
+
+---
+
+## Market Data — Real-World Prices
+
+At startup the market service anchors each instrument's initial price to a
+**real-world figure fetched from free, keyless public sources**, then random-walks
+forward from that anchor (500ms ticks) and aggregates 1-minute OHLCV candles into
+Postgres.
+
+| Instrument(s)              | Source                          |
+|----------------------------|---------------------------------|
+| BTCUSD                      | Coinbase public spot            |
+| EURUSD, GBPUSD, USDJPY, USDCHF, AUDUSD | Frankfurter (ECB reference rates) |
+| XAUUSD (gold)              | gold-api (best-effort)          |
+
+The fetch is **best-effort and non-blocking**: any symbol whose source is
+unavailable keeps a realistic static fallback, so the platform is always usable —
+including fully offline.
+
+Controlled by `MARKET_SEED_SOURCE`:
+- `live` (default) — fetch real prices at startup, fall back to static seeds on failure.
+- `static` — skip the network entirely and use built-in realistic seeds.
 
 ---
 
