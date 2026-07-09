@@ -1,0 +1,16 @@
+{
+  "name": "Apex Trading",
+  "short_name": "Apex",
+  "description": "Multi-asset trading platform",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050608",
+  "theme_color": "#c9a84c",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

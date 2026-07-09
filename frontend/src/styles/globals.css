@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-void: #050608;
+  --color-deep: #0a0c10;
+  --color-surface: #0f1117;
+  --color-panel: #141820;
+  --color-border: #1e2530;
+  --color-muted: #8a94a6;
+  --color-gold: #c9a84c;
+  --color-teal: #00d4aa;
+  --color-danger: #ff4757;
+  --color-warning: #f5a623;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-feature-settings: 'tnum' 1;
+}
+
+/* Tabular numbers everywhere prices/PnL are shown */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Thin dark scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
