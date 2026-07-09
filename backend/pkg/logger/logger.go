@@ -36,5 +36,6 @@ func New(env string) *Logger {
 func String(key, val string) zap.Field          { return zap.String(key, val) }
 func Error(err error) zap.Field                  { return zap.Error(err) }
 func Int(key string, val int) zap.Field          { return zap.Int(key, val) }
+func Float64(key string, val float64) zap.Field  { return zap.Float64(key, val) }
 func Duration(key string, val time.Duration) zap.Field { return zap.Duration(key, val) }
 func Bool(key string, val bool) zap.Field        { return zap.Bool(key, val) }

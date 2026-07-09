@@ -46,16 +46,8 @@ type OHLCV struct {
 }
 
 // ── Seed data ─────────────────────────────────────────────────────────────────
-
-var seedMid = map[string]float64{
-	"EURUSD": 1.08500,
-	"GBPUSD": 1.27300,
-	"USDJPY": 153.500,
-	"USDCHF": 0.90200,
-	"AUDUSD": 0.65400,
-	"XAUUSD": 2330.00,
-	"BTCUSD": 65000.0,
-}
+// Initial mid prices are resolved at startup by resolveSeeds (see seed.go),
+// which anchors to real-world figures from free sources with a static fallback.
 
 var halfSpreads = map[string]float64{
 	"EURUSD": 0.00010,
@@ -80,15 +72,35 @@ var volatility = map[string]float64{
 
 // ── Hub ───────────────────────────────────────────────────────────────────────
 
-// Hub manages WebSocket clients and broadcasts price ticks.
+// Hub manages WebSocket clients and broadcasts price ticks. It also fans ticks
+// out to internal Go consumers (e.g. the order processor) via subscriber channels.
 type Hub struct {
-	mu     sync.RWMutex
-	subs   map[string]map[*Client]struct{} // symbol → clients
-	prices sync.Map                        // symbol → Tick
+	mu       sync.RWMutex
+	subs     map[string]map[*Client]struct{} // symbol → clients
+	prices   sync.Map                        // symbol → Tick
+	tickSubs map[chan Tick]struct{}          // internal consumers → every tick
 }
 
 func newHub() *Hub {
-	return &Hub{subs: make(map[string]map[*Client]struct{})}
+	return &Hub{
+		subs:     make(map[string]map[*Client]struct{}),
+		tickSubs: make(map[chan Tick]struct{}),
+	}
+}
+
+// Subscribe registers an internal consumer channel to receive every tick.
+// Sends are non-blocking; a full channel drops the tick to avoid stalling the hub.
+func (h *Hub) Subscribe(ch chan Tick) {
+	h.mu.Lock()
+	h.tickSubs[ch] = struct{}{}
+	h.mu.Unlock()
+}
+
+// Unsubscribe removes an internal consumer channel.
+func (h *Hub) Unsubscribe(ch chan Tick) {
+	h.mu.Lock()
+	delete(h.tickSubs, ch)
+	h.mu.Unlock()
 }
 
 func (h *Hub) addClient(_ *Client) {}
@@ -131,11 +143,17 @@ func (h *Hub) broadcast(tick Tick) {
 
 	h.mu.RLock()
 	clients := h.subs[tick.Symbol]
-	h.mu.RUnlock()
-
 	for c := range clients {
 		c.writeRaw(msg)
 	}
+	// Fan out to internal consumers (non-blocking; drop on slow consumer).
+	for ch := range h.tickSubs {
+		select {
+		case ch <- tick:
+		default:
+		}
+	}
+	h.mu.RUnlock()
 }
 
 // GetPrice returns the latest tick for a symbol (used by order + portfolio services).
@@ -154,7 +172,7 @@ type Client struct {
 	conn *websocket.Conn
 }
 
-func (c *Client) writeJSON(v interface{}) {
+func (c *Client) writeJSON(v any) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	_ = c.conn.WriteJSON(v)
@@ -253,8 +271,10 @@ func (s *Service) GetCandles(ctx context.Context, symbol, timeframe string, limi
 }
 
 func (s *Service) runSimulator() {
-	// Seed initial prices
-	for symbol, mid := range seedMid {
+	// Resolve initial prices from real-world sources (with static fallback),
+	// then random-walk forward from those anchors.
+	seeds := resolveSeeds(s.log)
+	for symbol, mid := range seeds {
 		s.hub.prices.Store(symbol, makeTick(symbol, mid))
 	}
 
@@ -262,7 +282,7 @@ func (s *Service) runSimulator() {
 	defer ticker.Stop()
 
 	for range ticker.C {
-		for symbol := range seedMid {
+		for symbol := range seeds {
 			v, _ := s.hub.prices.Load(symbol)
 			prev := v.(Tick)
 			step := (rand.Float64() - 0.49) * volatility[symbol] * 2
@@ -368,10 +388,7 @@ func (h *Handler) GetCandles(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "symbol required")
 	}
 	timeframe := c.Query("timeframe", "1m")
-	limit := c.QueryInt("limit", 500)
-	if limit > 1000 {
-		limit = 1000
-	}
+	limit := min(c.QueryInt("limit", 500), 1000)
 
 	candles, err := h.svc.GetCandles(c.Context(), symbol, timeframe, limit)
 	if err != nil {
